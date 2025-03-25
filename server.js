@@ -17,7 +17,6 @@ app.use(cors({
     const allowedOrigins = [
       'https://levkonnects.vercel.app',
       'https://levkonnects-97xrguzu2-rshafii106s-projects-10744910.vercel.app',
-      'http://localhost:5173' // Optional: for local development
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
