@@ -45,14 +45,22 @@ router.get(
 // Admin routes
 router.get(
   "/admin/users",
-  [authJwt.verifyToken],
-  controller.listAllUsers
+  [authJwt.verifyToken, authJwt.isAdmin],
+  (req, res) => {
+    console.log('Reached /api/users/admin/users route'); // Debug
+    console.log('User:', req.user); // Debug
+    controller.listAllUsers(req, res);
+  }
 );
 
 router.put(
   "/admin/users/:id/deactivate",
-  [authJwt.verifyToken],
-  controller.deactivateUser
+  [authJwt.verifyToken, authJwt.isAdmin],
+  (req, res) => {
+    console.log('Reached /api/users/admin/users/:id/deactivate route'); // Debug
+    console.log('User:', req.user); // Debug
+    controller.deactivateUser(req, res);
+  }
 );
 
 module.exports = router;
