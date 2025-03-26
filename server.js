@@ -7,7 +7,7 @@ const jobRoutes = require('./routes/job.routes');
 const bidRoutes = require('./routes/bid.routes');
 const contactRoutes = require('./routes/contact.routes');
 const authRoutes = require('./routes/auth.routes');
-const dashboardRoutes = require('./routes/dashboard'); // Import dashboard routes
+const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
 
@@ -16,8 +16,8 @@ app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
       'https://levkonnects.vercel.app',
-      'https://levkonnects-97xrguzu2-rshafii106s-projects-10744910.vercel.app',
-      'https://levkonnects-5k1ui36cq-rshafii106s-projects-10744910.vercel.app',
+      'https://levkonnects-wu7678r5z-rshafii106s-projects-10744910.vercel.app/',
+      'http://localhost:5000',
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -33,6 +33,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Log all incoming requests
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/jobs', jobRoutes);
@@ -40,6 +46,11 @@ app.use('/api/bids', bidRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+
+// Test route to confirm server is working
+app.get('/test', (req, res) => {
+  res.status(200).send({ message: 'Server is running!' });
+});
 
 // Global error-handling middleware
 app.use((err, req, res, next) => {
