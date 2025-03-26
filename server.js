@@ -17,6 +17,7 @@ app.use(cors({
     const allowedOrigins = [
       'https://levkonnects.vercel.app',
       'https://levkonnects-97xrguzu2-rshafii106s-projects-10744910.vercel.app',
+      'https://levkonnects-5k1ui36cq-rshafii106s-projects-10744910.vercel.app',
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
