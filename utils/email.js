@@ -1,10 +1,10 @@
 const nodemailer = require('nodemailer');
-require('dotenv').config(); // Ensure environment variables are loaded
+require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
-  secure: false, // Use true for 465, false for 587
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationUrl = `http://localhost:5173/email-verified?token=${token}`;
+  const verificationUrl = `https://levkonnects.vercel.app/email-verified?token=${token}`; // Update to deployed URL
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
@@ -36,7 +36,7 @@ const sendVerificationEmail = async (email, token) => {
 };
 
 const sendPasswordResetEmail = async (email, token) => {
-  const resetUrl = `http://localhost:5173/password-recovery?token=${token}`;
+  const resetUrl = `https://levkonnects.vercel.app/password-recovery?token=${token}`; // Update to deployed URL
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
