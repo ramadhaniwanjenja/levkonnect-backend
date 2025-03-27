@@ -103,31 +103,78 @@ exports.login = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
   const { token } = req.query;
-
   try {
-    console.log('Verifying email with token:', token);
+    // Add more detailed logging
+    console.log('Raw token received:', token);
+    console.log('JWT_SECRET length:', process.env.JWT_SECRET?.length);
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token decoded:', decoded);
+    // Verify token with additional options
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+      algorithms: ['HS256'], // Specify expected algorithm
+      // Optional: add other verification options
+    });
 
-    const user = await User.findOne({ where: { id: decoded.id, verification_token: token } });
+    console.log('Decoded token details:', {
+      id: decoded.id,
+      iat: decoded.iat,
+      exp: decoded.exp
+    });
+
+    // More robust user finding
+    const user = await User.findByPk(decoded.id);
+   
     if (!user) {
-      console.log('No user found or token mismatch for:', decoded.id);
-      return res.status(400).send({ message: 'Invalid or expired verification token.' });
+      console.log('No user found with ID:', decoded.id);
+      return res.status(400).send({
+        message: 'User not found.',
+        details: { receivedId: decoded.id }
+      });
+    }
+
+    // Verify token match
+    if (user.verification_token !== token) {
+      console.log('Token mismatch', {
+        storedToken: user.verification_token,
+        receivedToken: token
+      });
+      return res.status(400).send({
+        message: 'Invalid verification token.'
+      });
     }
 
     user.is_verified = true;
     user.verification_token = null;
     await user.save();
 
-    console.log('Email verified for user:', user.email);
-    res.status(200).send({ message: 'Email verified successfully! You can now log in.' });
+    res.status(200).send({
+      message: 'Email verified successfully!',
+      user: {
+        id: user.id,
+        email: user.email
+      }
+    });
+
   } catch (error) {
-    console.error('Error in verifyEmail:', error.message);
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(400).send({ message: 'Invalid or expired verification token.' });
+    console.error('Full verification error:', error);
+
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).send({
+        message: 'Invalid token signature',
+        errorType: error.name
+      });
     }
-    res.status(500).send({ message: 'Failed to verify email.', error: error.message });
+
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).send({
+        message: 'Verification token has expired',
+        errorType: error.name
+      });
+    }
+
+    res.status(500).send({
+      message: 'Unexpected error during email verification',
+      error: error.message
+    });
   }
 };
 
