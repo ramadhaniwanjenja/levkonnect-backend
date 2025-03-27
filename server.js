@@ -15,7 +15,7 @@ dotenv.config();
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
-      'http://localhost:5173',
+      'https://levkonnect.vercel.app',
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
