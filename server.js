@@ -15,8 +15,8 @@ dotenv.config();
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
-      'https://levkonnect.netlify.app',
-    ];
+      'https://lev-konnectz-9wsylvtij-rshafii106s-projects-10744910.vercel.app',
+    ];p
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
