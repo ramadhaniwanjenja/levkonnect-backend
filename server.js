@@ -1,4 +1,4 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
 const express = require('express');
 const cors = require('cors');
 const db = require('./models');
@@ -10,17 +10,22 @@ const authRoutes = require('./routes/auth.routes');
 const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
-
+dotenv.config();
 // CORS configuration
 app.use(cors({
-  origin: 'https://levkonnects.vercel.app', // Explicitly allow this origin
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // If you use cookies/auth tokens
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-// Handle preflight requests
-app.options('*', cors());
 
 // Middleware
 app.use(express.json());
@@ -40,9 +45,28 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+// Log all registered routes
+app._router.stack.forEach((middleware) => {
+  if (middleware.route) {
+    console.log(`Registered route: ${Object.keys(middleware.route.methods)} ${middleware.route.path}`);
+  } else if (middleware.name === 'router') {
+    middleware.handle.stack.forEach((handler) => {
+      if (handler.route) {
+        console.log(`Registered route: ${Object.keys(handler.route.methods)} ${handler.route.path}`);
+      }
+    });
+  }
+});
+
 // Test route
 app.get('/test', (req, res) => {
   res.status(200).send({ message: 'Server is running!' });
+});
+
+// Global error-handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 
 // Start server

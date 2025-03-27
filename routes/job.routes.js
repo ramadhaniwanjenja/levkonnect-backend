@@ -5,7 +5,7 @@ const { verifyToken, isClient, isEngineer, isAdmin } = require('../middleware/au
 const { validate, jobValidationRules } = require('../middleware/validation.middleware');
 
 // Create a new job (client only)
-router.post('/auth/jobs', [verifyToken, isClient, ...jobValidationRules.create, validate], (req, res) => {
+router.post('/', [verifyToken, isClient, ...jobValidationRules.create, validate], (req, res) => {
   console.log('POST /api/jobs/auth/jobs - User:', req.user); // Debug
   jobController.createJob(req, res);
 });

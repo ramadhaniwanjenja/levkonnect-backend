@@ -187,12 +187,17 @@ exports.requestPasswordReset = async (req, res) => {
       return res.status(404).send({ message: 'User with this email does not exist.' });
     }
 
+    // Check if JWT_SECRET is set
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not set in environment variables');
+      return res.status(500).send({ message: 'Server configuration error: JWT_SECRET missing' });
+    }
+
     const resetToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     user.reset_password_token = resetToken;
     user.reset_password_expires = new Date(Date.now() + 3600000); // 1 hour
     await user.save();
 
-    // Uncomment to send the password reset email
     const { sendPasswordResetEmail } = require('../utils/email');
     await sendPasswordResetEmail(email, resetToken);
 

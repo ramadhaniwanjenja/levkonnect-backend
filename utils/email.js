@@ -11,8 +11,17 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Verify transporter on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('Transporter verification failed:', error.message);
+  } else {
+    console.log('Transporter is ready to send emails');
+  }
+});
+
 const sendVerificationEmail = async (email, token) => {
-  const verificationUrl = `https://levkonnects.vercel.app/email-verified?token=${token}`; // Update to deployed URL
+  const verificationUrl = `${process.env.FRONTEND_URL}/email-verified?token=${token}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
@@ -27,8 +36,8 @@ const sendVerificationEmail = async (email, token) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Verification email sent to ${email} with token ${token}`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Verification email sent to ${email} with token ${token}, Message ID: ${info.messageId}`);
   } catch (error) {
     console.error('Error sending verification email:', error.message);
     throw new Error('Failed to send verification email');
@@ -36,7 +45,7 @@ const sendVerificationEmail = async (email, token) => {
 };
 
 const sendPasswordResetEmail = async (email, token) => {
-  const resetUrl = `https://levkonnects.vercel.app/password-recovery?token=${token}`; // Update to deployed URL
+  const resetUrl = `${process.env.FRONTEND_URL}/password-recovery?token=${token}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
@@ -52,11 +61,11 @@ const sendPasswordResetEmail = async (email, token) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Password reset email sent to ${email} with token ${token}`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Password reset email sent to ${email} with token ${token}, Message ID: ${info.messageId}`);
   } catch (error) {
     console.error('Error sending password reset email:', error.message);
-    throw new Error('Failed to send password reset email');
+    throw new Error(`Failed to send password reset email: ${error.message}`);
   }
 };
 
