@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors'); 
-const db = require('./models'); 
+const cors = require('cors');
+const db = require('./models');
 const userRoutes = require('./routes/user.routes');
 const jobRoutes = require('./routes/job.routes');
 const bidRoutes = require('./routes/bid.routes');
@@ -16,8 +16,6 @@ app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
       'https://levkonnects.vercel.app',
-      'https://levkonnects-wu7678r5z-rshafii106s-projects-10744910.vercel.app/',
-      'http://localhost:5000',
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -47,7 +45,20 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Test route to confirm server is working
+// Log all registered routes
+app._router.stack.forEach((middleware) => {
+  if (middleware.route) {
+    console.log(`Registered route: ${Object.keys(middleware.route.methods)} ${middleware.route.path}`);
+  } else if (middleware.name === 'router') {
+    middleware.handle.stack.forEach((handler) => {
+      if (handler.route) {
+        console.log(`Registered route: ${Object.keys(handler.route.methods)} ${handler.route.path}`);
+      }
+    });
+  }
+});
+
+// Test route
 app.get('/test', (req, res) => {
   res.status(200).send({ message: 'Server is running!' });
 });
