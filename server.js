@@ -15,7 +15,7 @@ dotenv.config();
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
-      'https://levkonnect.netlify.app/',
+      'https://levkonnect.netlify.app',
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
